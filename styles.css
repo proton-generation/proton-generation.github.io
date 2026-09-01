@@ -1,0 +1,483 @@
+#btnConnect, #logo {
+  display: block;
+  margin: 0 auto;
+}
+
+#btnGenerate {
+  display: block;
+  margin: auto;
+  margin-top: 24px;
+}
+
+#timerContainer {justify-content: center}
+#alertBox, summary {text-align: center}
+
+/* Базовый стиль для всех переключателей */
+.filter-option {
+    cursor: pointer;
+    border-radius: 25px;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: 75px; /* w-36 (144px) */
+    text-align: center;
+    display: inline-block;
+    color: #374151; /* text-gray-700 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    border: 1px solid #6d4aff;
+}
+
+/* Эффект при наведении на неактивную кнопку */
+.filter-option:hover {
+    background-color: #d1d5db; /* bg-gray-300 */
+}
+
+/* Активное состояние */
+.filter-option.active {
+    background-color: #4f46e5; /* bg-indigo-600 */
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* shadow-md */
+}
+
+body {
+    font-family: "Twemoji Country Flags", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Стили для кнопок выбора порта */
+.port-btn {
+    display: inline-block;
+    border-radius: 25px;
+    border: 1px solid #6d4aff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: white;
+    color: #374151; /* text-gray-700 */
+    user-select: none;
+    width: 56px;
+    text-align: center;
+}
+
+.port-btn:hover {
+    background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+input[type="radio"]:checked + .port-btn {
+    background-color: #4f46e5; /* bg-indigo-600 */
+    color: white;
+    border-color: #4f46e5;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Убираем стандартный маркер у details (для кроссбраузерности) */
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Контейнер */
+.switch-label {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Скрываем стандартный системный чекбокс */
+.switch-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Фон переключателя (Track) */
+.switch-track {
+    width: 2.75rem; /* 44px */
+    height: 1.5rem; /* 24px */
+    background-color: #e5e7eb; /* Серый фон по умолчанию */
+    border-radius: 9999px;
+    position: relative;
+    transition: background-color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+/* Круглый ползунок (Thumb) */
+.switch-track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    height: 1.25rem; /* 20px */
+    width: 1.25rem; /* 20px */
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Состояние: Включено (Checked) */
+.switch-input:checked + .switch-track {
+    background-color: #4f46e5; /* Индиго цвет активного состояния */
+}
+
+/* Движение ползунка вправо при включении */
+.switch-input:checked + .switch-track::after {
+    transform: translateX(100%);
+    border-color: white;
+}
+
+/* Текст рядом со свитчем */
+.switch-text {
+    margin-left: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Эффект фокуса для доступности (управление с клавиатуры) */
+.switch-input:focus-visible + .switch-track {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+}
+
+textarea:focus { outline: 1px solid #6D4AFF; }
+.jc, #domain {
+	border-radius: 2px;
+	border: 1px solid #888891;
+	max-height: 20px;
+	resize:none;
+	margin-bottom: -1px;
+	max-width: 140px;
+	white-space: nowrap; 
+    overflow-y: hidden; 
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+    box-sizing: unset;
+    font-family: monospace;
+	padding: revert;
+    line-height: revert;
+}
+}
+
+#domain {
+  margin: 10px;
+  scale: 118%;
+  margin-bottom: 15px;
+}
+.jc::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+#jc1,#keepaliveInput {max-width: 23px}
+#cpaInput, #mhaInput, #ktInput, #ratInput, #rkatInput, #rtInput {
+  max-width: 50px;
+  text-align: center;
+}
+#jmax1, #jmin1, #mtu {max-width: 30px}
+
+#ib, #ip {
+	padding-inline: 4px;
+    padding-block: 1px;
+    font-family: revert;
+	font-size: revert;
+}
+
+#domain::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.radio-fakeradio {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: auto;
+  border-radius: 50%;
+  border: 1px solid #adaba8; 
+  background-color: #ffffff; 
+  color: #0c0c14; 
+  transition: 0.15s cubic-bezier(0.33, 1, 0.68, 1);
+  transform: scale(0.85);
+  cursor: pointer; 
+}
+.radio-fakeradio:before {
+  content: "";
+  width: 0.7142857143em;
+  height: 0.7142857143em;
+  border-radius: 50%;
+  background: transparent;
+  transform: scale(0);
+  transition: 0.15s cubic-bezier(0.33, 1, 0.68, 1), 0.15s transform cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.radio:hover + .radio-fakeradio {
+  border-color: #6d4aff;
+}
+.radio:checked + .radio-fakeradio:before {
+  transform: scale(1);
+  background-color: #6d4aff; 
+}
+
+.hidden, .hidden-input, .radio, br.mobile-only {
+      display: none;
+    }
+
+.randombtn, .randombtn2 {
+  display: initial;
+  width: initial;
+  margin: 0 15px;
+  position: relative;
+  top: 4px;
+}
+
+select {background-color: #fff;
+  border-radius: 2px;
+  border: 1px solid #888891;
+  width: 146px;
+  min-height: 23.25px;}
+  
+.amnezia-icon {
+max-width: 40px;
+margin-bottom: -15px;
+display: initial;
+vertical-align: initial;
+}
+ 
+#dwnl {margin-inline: 10px}
+
+#telegramButton,#projectsButton, #selectDomain {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 8px 20px;
+    font-size: 18px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+	transition: background 0.3s ease, transform 0.2s ease;
+	background: #4f46e5;
+	width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+}
+
+#telegramButton:hover,#projectsButton:hover, #selectDomain:hover {background: rgb(67 56 202)}
+
+#awgdiv {display: inline-flex}
+.hidden {display: none !important}
+ 
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+    background-color: #F4F4F4;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 346px;
+    position: relative;
+	text-align: center;
+}
+.modal-content p{
+margin-bottom: 0px;
+  margin-top: 5px;
+  font-weight: bold;
+  font-size: 20px;
+  font-family: sans-serif;
+}
+.close {
+  position: absolute;
+  right: 5px;
+  top: -5px;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover {
+  color: black;
+}
+
+#musor4div {grid-template-columns: repeat(2, 1fr);}
+
+@media (max-width: 650px) {
+  body {padding: 0 !important}
+ #maindiv {padding: 10px}
+ #awgdiv {display: inline-block}
+ #i1gen {margin-top: 10px;}
+ #WireSockdiv {display: inline-grid}
+ #WireSockrnd {top: 0 !important; margin-top: 10px}
+ #musor3div {grid-template-columns: auto !important}
+ .amnezia-icon {margin-bottom: -11px}
+ #dwnl {margin-inline: 0}
+ #labelmob {padding: 10px}
+ #musor4div {grid-template-columns: repeat(1, 1fr);}
+}
+
+
+
+
+
+
+
+
+
+
+/* AmneziaButton */ 
+.glow-on-hover:hover {transform: translateY(-2px);  transition: transform 160ms ease}
+
+.glow-on-hover {
+	display: flex;
+	justify-content: center;
+	padding: 8px;
+    width: 100%;
+	max-width: 400px;
+    border: none;
+    outline: none;
+    color: #fff;
+    background: #111;
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    border-radius: 5px;
+	margin: 10px auto;
+}
+
+.glow-on-hover:before {
+    content: '';
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    position: absolute;
+    top: -2px;
+    left:-2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 5px;
+}
+
+.glow-on-hover:active {color: #000}
+.glow-on-hover:active:after {background: transparent;}
+.glow-on-hover:before {opacity: 1;}
+.glow-on-hover:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    left: 0;
+    top: 0;
+    border-radius: 5px;
+}
+
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+} 
+/* AmneziaButton */
+ 
+/* adButton */
+.whitelist-button {
+  padding: 10px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: linear-gradient(105deg, #ff7a18 0%, #ff3d57 100%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 14px 34px rgba(244, 67, 54, 0.32),
+    0 0 0 5px rgba(255, 92, 64, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease;
+  max-width: 400px;
+  margin: 10px auto;
+  margin-top: 20px;
+}
+.whitelist-button__icon {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f04454;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(135, 24, 44, 0.2);
+  transform: translateY(-50%);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+.whitelist-button__icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.whitelist-button:hover {
+  filter: saturate(1.06) brightness(1.03);
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 38px rgba(244, 67, 54, 0.38),
+    0 0 0 6px rgba(255, 92, 64, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+.whitelist-button:hover .whitelist-button__icon {
+  transform: translate(3px, -50%) scale(1.05);
+  box-shadow: 0 10px 22px rgba(135, 24, 44, 0.26);
+}
+.whitelist-button:active {
+  filter: brightness(0.98);
+  transform: translateY(1px);
+}
+.whitelist-button:focus-visible {
+  outline: 4px solid rgba(255, 61, 87, 0.25);
+  outline-offset: 4px;
+}
+/* adButton */

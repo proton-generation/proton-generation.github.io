@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtonVPN Генератор</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script defer src="script.js"></script>
+	<script defer src="quic.js"></script>
+	<script type="module" defer>import { polyfillCountryFlagEmojis } from "https://cdn.skypack.dev/country-flag-emoji-polyfill";polyfillCountryFlagEmojis();</script>
+    <link rel="stylesheet" href="styles.css">
+	<link rel="icon" href="proton.svg" type="image/x-icon">
+</head>
+<body class="bg-gray-100 text-gray-800 p-6 min-h-screen">
+
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md" id="maindiv">
+        <img id="logo" src="logo.svg" alt="Логотип">
+        
+        <div id="alertBox" class="hidden mb-4 p-4 rounded text-sm font-semibold"></div>
+
+<!-- ШАГ 1: Настройки Proxy API -->
+        <div class="mb-8 border-b pb-6">
+            <h2 class="text-lg font-semibold mb-4">1. Создайте временный аккаунт ProtonVPN</h2>
+            <div class="space-y-4">
+                <button id="btnConnect" onclick="connectProxy()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                    Подключиться и получить серверы
+                </button>
+                
+                <!-- Контейнер таймера -->
+                <div id="timerContainer" class="hidden items-center space-x-3">
+                    <span class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded font-mono font-semibold" id="timerText">24:00:00</span>
+                    <span class="text-sm text-gray-600">Сессия активна</span>
+                    <button onclick="clearSession()" class="text-sm text-red-500 hover:text-red-700 underline transition">
+                        Сбросить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+<!-- ШАГ 2: Выбор сервера и генерация -->
+        <div id="step2" class="mb-8 border-b pb-6 hidden">
+            <h2 class="text-lg font-semibold mb-4">2. Выберите сервер</h2>
+            <div id="filterContainer" class="flex flex-wrap gap-2 mb-4" style="justify-content: center"></div>
+            <div class="space-y-4">
+                <div>
+                    <select id="serverSelect" class="w-full border px-3 py-2 rounded focus:outline-none focus:ring focus:border-indigo-300"></select>
+                </div>
+                <button id="btnGenerate" onclick="generateConfig()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+                    Сгенерировать конфиг
+                </button>
+            </div>
+        </div>
+
+<!-- ШАГ 3: Результат -->
+        <div id="step3" class="hidden">
+            <h2 class="text-lg font-semibold mb-4">3. Скачайте конфиг</h2>
+            <textarea id="wgConfigText" rows="10" class="w-full border px-3 py-2 rounded bg-gray-50 font-mono text-sm mb-4 focus:outline-none" readonly></textarea>
+            
+			<div id="dwnldiv" class="flex flex-col sm:flex-row gap-2 mb-4">
+				<button id="btnDwnlSingle" onclick="downloadConfig()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full">
+				Скачать .conf файл</button>
+
+				<button id="btnDwnlCountry" onclick="downloadCountriesZip()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full">
+				Скачать .conf файл каждой страны (0)</button>
+    
+				<button id="btnDwnlAll" onclick="downloadAllZip()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full">
+				Скачать все .conf файлы (0)</button>
+			</div>
+
+            <!-- Разворачивающиеся настройки -->
+            <details class="bg-white border rounded shadow-sm group w-full">
+                <summary class="font-semibold cursor-pointer text-gray-700 select-none outline-none p-4 bg-gray-50 rounded group-open:rounded-b-none group-open:border-b">
+                    ⚙️ Настройки
+                </summary>
+                
+                <div class="p-4 space-y-5" style="text-align: center">
+                    Клиент:
+					<div style="display: grid; grid-template-columns: repeat(3, 1fr)">
+					<label><div class="checkbox">
+					<input type="radio" id="awg" name="option" class="radio" checked>
+					<span class="radio-fakeradio"></span><img src="AWG.webp" alt="AmneziaWG Icon" class="amnezia-icon">AmneziaWG
+				</div></label>
+
+				<label><div class="checkbox">
+					<input type="radio" id="wiresock" name="option" class="radio" >
+					<span class="radio-fakeradio"></span><img src="WireSock.webp" alt="AmneziaWG Icon" class="amnezia-icon">WireSock 
+				</div></label>
+				
+				<label><div class="checkbox">
+					<input type="radio" id="clash" name="option" class="radio">
+					<span class="radio-fakeradio"></span><img src="Clash.webp" alt="AmneziaWG Icon" class="amnezia-icon" style="scale: 0.85">Clash
+				</div></label>
+				</div>
+					<div class="space-y-4 pt-4 border-t">
+                    <div>
+                        <span class="block text-sm font-medium text-gray-700 mb-3">Порт Endpoint:</span>
+                        <div class="flex flex-wrap gap-2 text-sm" onchange="generateConfig()" style="justify-content: center">
+<label><input type="radio" name="wgPort" value="80" class="peer hidden"> <span class="port-btn">80</span></label>
+<label><input type="radio" name="wgPort" value="88" class="peer hidden"> <span class="port-btn">88</span></label>
+<label><input type="radio" name="wgPort" value="443" class="peer hidden"> <span class="port-btn">443</span></label>
+<label><input type="radio" name="wgPort" value="1194" class="peer hidden"> <span class="port-btn">1194</span></label>
+<label><input type="radio" name="wgPort" value="1224" class="peer hidden"> <span class="port-btn">1224</span></label>
+<label><input type="radio" name="wgPort" value="4500" class="peer hidden"> <span class="port-btn">4500</span></label>
+<label><input type="radio" name="wgPort" value="4569" class="peer hidden"> <span class="port-btn">4569</span></label>
+<label><input type="radio" name="wgPort" value="5060" class="peer hidden"> <span class="port-btn">5060</span></label>
+<label><input type="radio" name="wgPort" value="51820" class="peer hidden" checked> <span class="port-btn">51820</span></label>
+                        </div>
+                    </div>
+                    <div class="space-y-4 pt-4 border-t">
+					
+					
+					<span class="text-sm font-medium text-gray-700 mb-3">MTU =</span>
+					<textarea id="mtu" class="jc" rows="1" maxlength="4" type="number" placeholder="1420" style="margin: 0; position: relative; top: 2px"></textarea>
+					
+					
+					<div class="space-y-4 pt-4 border-t">
+                        <label class="switch-label">
+                            <input type="checkbox" id="switchOption1" class="switch-input" onchange="generateConfig()" checked>
+                            <div class="switch-track"></div>
+                            <span class="switch-text">AWG 1.0</span>
+                        </label>
+                       <div class="musor1"><div>
+							<label><div class="checkbox">
+								<input type="radio" id="junk1" name="junk" class="radio" checked>
+								<span class="radio-fakeradio"></span> jc = 3 jmin = 1 jmax = 3 
+							</div></label>
+							<br>
+							<label><div class="checkbox">
+								<input type="radio" id="junk2" name="junk" class="radio" />
+								<span class="radio-fakeradio"></span> jc = 30 jmin = 10 jmax = 30 
+							</div></label>
+							<br>
+							<label><div class="checkbox" style="padding-bottom: 10px">
+								<input type="radio" id="junk3" name="junk" class="radio" />
+								<span class="radio-fakeradio"></span> Свой вариант
+							</div></label></div>
+							jc = <textarea id="jc1" class="jc reset-tw" rows="1" maxlength="3" type="number" placeholder="128"></textarea> 
+							jmin = <textarea spellcheck="false" id="jmin1" class="jc reset-tw" rows="1" maxlength="4" type="number" placeholder="1279"></textarea> 
+							jmax = <textarea spellcheck="false" id="jmax1" class="jc reset-tw" rows="1" maxlength="4" placeholder="1280"></textarea>
+							<button onclick="randomizeAwg1()" class="randombtn bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" style="display: block; margin: 10px auto">Случайно</button>
+						</div>
+						
+						<div class="space-y-4 pt-4 border-t"style= "padding-top: 0px;"></div>
+                        
+						<label class="switch-label">
+                            <input type="checkbox" id="switchOption2" class="switch-input" onchange="generateConfig()" checked>
+                            <div class="switch-track"></div>
+                            <span class="switch-text">AWG 2.0</span>
+                        </label>
+						
+					<div class="musor2">
+					<div id="awgdiv" style="line-height: 27px"><div style="display: inline-block">
+					    I1 = <textarea spellcheck="false" id="i1" class="jc" rows="1" wrap="off" placeholder="<b 0xc600000...>"></textarea> 
+					<br>I2 = <textarea spellcheck="false" id="i2" class="jc" rows="1" wrap="off" placeholder="<b 0x...>"></textarea> 
+					<br>I3 = <textarea spellcheck="false" id="i3" class="jc" rows="1" wrap="off" placeholder="<b 0x...>"></textarea>
+					<br>I4 = <textarea spellcheck="false" id="i4" class="jc" rows="1" wrap="off" placeholder="<b 0x...>"></textarea>
+					<br>I5 = <textarea spellcheck="false" id="i5" class="jc" rows="1" wrap="off" placeholder="<b 0x...>"></textarea></div><div style="display: grid;
+  align-items: center;
+  padding-left: 20px;">
+					<button onclick="randomizeAwg2()" class="randombtn bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" style="margin: 0 60px">Случайно</button>
+					<button id="i1gen" onclick="" class="genbtn bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Сгенерировать из домена</button></div>
+					</div>
+
+					<div id="WireSockdiv" style="line-height: 27px;"><div style="display: inline-block">
+					Id = <textarea spellcheck="false" id="id" class="jc" rows="1" wrap="off" placeholder="ozon.ru"></textarea><br>
+					Ip = <select name="select" id="ip">
+						<option value="quic"selected>QUIC</option>
+						<option value="dns">DNS</option>
+					</select><br>
+					Ib = <select name="select" id="ib">
+						<option value="chrome">Chrome</option>
+						<option value="firefox">Firefox</option>
+						<option value="curl"selected>cURL</option>
+					</select></div>
+					<button id="WireSockrnd" onclick="randomizeWireSock()" class="randombtn bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" style="top: -25px">Случайно</button>
+					</div>
+					</div>
+
+						<div class="space-y-4 pt-4 border-t" style= "padding-top: 0px;"></div>
+
+                        <label class="switch-label">
+                            <input type="checkbox" id="switchOption3" class="switch-input" onchange="generateConfig()">
+                            <div class="switch-track"></div>
+                            <span class="switch-text">AWG 3.0</span>
+                        </label>
+						
+                        <div class="musor3">
+    <div id="musor3div" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+        <div>
+            <div>ContentPaddingAddition = <textarea id="cpaInput" class="jc" rows="1" maxlength="7" placeholder="27-97"></textarea></div>
+            <div>MaxHandshakeAttempts = <textarea id="mhaInput" class="jc" rows="1" maxlength="7" placeholder="18-26"></textarea></div>
+            <div>KeepaliveTimeout = <textarea id="ktInput" class="jc" rows="1" maxlength="7" placeholder="9-16"></textarea></div>
+        </div>
+        <div>
+            <div>RejectAfterTime = <textarea id="ratInput" class="jc" rows="1" maxlength="7" placeholder="171-196"></textarea></div>
+            <div>RekeyAfterTime = <textarea id="rkatInput" class="jc" rows="1" maxlength="7" placeholder="116-131"></textarea></div>
+            <div>RekeyTimeout = <textarea id="rtInput" class="jc" rows="1" maxlength="7" placeholder="6-9"></textarea></div>
+        </div>
+    </div>
+    <button onclick="randomizeAwg3()" class="randombtn bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" style="width: fit-content; justify-self: center">Случайно</button>
+</div>
+						
+						<div class="space-y-4 pt-4 border-t" style= "padding-top: 0px;"></div>
+						
+						<label class="switch-label">
+                            <input type="checkbox" id="switchOption6" class="switch-input" onchange="generateConfig()">
+                            <div class="switch-track"></div>
+                            <span class="switch-text">AWG 3.1</span>
+                        </label>
+						
+                        <div class="musor4">
+							<div id="musor4div" style="display: grid; justify-items: center">
+								<label class="switch-label">
+									<input type="checkbox" id="switchOption7" class="switch-input" onchange="generateConfig()">
+									<div class="switch-track"></div>
+									<span class="switch-text">Random trailers</span>
+								</label>
+								<label class="switch-label" id="labelmob">
+									<input type="checkbox" id="switchOption8" class="switch-input" onchange="generateConfig()" checked>
+									<div class="switch-track"></div>
+									<span class="switch-text">Disable cookies</span>
+								</label>
+							</div>
+						</div>
+						
+						<div class="space-y-4 pt-4 border-t" style= "padding-top: 0px;"></div>
+						
+                        <label class="switch-label">
+                            <input type="checkbox" id="switchOption4" class="switch-input" onchange="generateConfig()">
+                            <div class="switch-track"></div>
+                            <span class="switch-text">Исключить LAN</span> 
+                        </label>
+
+                        <label class="switch-label">
+                            <input type="checkbox" id="switchOption5" class="switch-input" onchange="generateConfig()">
+                            <div class="switch-track"></div>
+                            <span class="switch-text">PersistentKeepalive = <textarea id="keepaliveInput" class="jc" rows="1" maxlength="3" type="number" placeholder="25" style="text-align: center"></textarea></span>
+                        </label>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+	
+	<div style="display: block; text-align: center; padding: 10px">
+	<button id="telegramButton"><span class="button__text">Telegram</span></button>
+	<button id="promoButton" class="glow-on-hover"><span class="button__text">Amnezia <a style="color: #A40059">Premium<a></span></button>
+	
+	<button id="adButton" class="whitelist-button">
+		<span>Обход белых списков</span>
+		<span class="whitelist-button__icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+		</span>
+	</button>
+	
+    <button id="projectsButton"><span class="button__text">Другие проекты</span></button>
+	</div>
+			<div id="Modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <p align="center">Введите домен</p>
+	<textarea spellcheck="false" id="domain" class="jc" rows="1" wrap="off" placeholder="example.com"></textarea> 
+    <button id="selectDomain" style="margin-bottom:0px">Подтвердить</button>
+  </div>
+</div>
+</body>
+</html>
