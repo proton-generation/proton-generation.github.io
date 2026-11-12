@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initClientToggle();
 });
 
+document.getElementById('serverSelect')?.addEventListener('change', () => {
+    if (!document.getElementById('step3').classList.contains('hidden')) {
+        generateConfig();
+    }
+});
+
 function checkCachedSession() {
   const cachedSession = localStorage.getItem('protonSession');
   const expires = localStorage.getItem('protonSessionExpires');
@@ -227,6 +233,9 @@ function renderServersList(countryFilter) {
 
                 select.appendChild(optgroup);
             });
+            if (!document.getElementById('step3').classList.contains('hidden')) {
+                generateConfig();
+            }
         }
 
 async function connectProxy() {
